@@ -1,0 +1,203 @@
+﻿@page "/"
+
+<button @onclick="() => Score(1)">Player One</button>
+<button @onclick="() => Score(2)">Player Two</button>
+<button @onclick="ResetAll">Reset</button>
+
+<p>@score</p>
+<p>@game</p>
+<p>@set</p>
+
+@code
+{
+	int player = 0;
+	string score;
+	int countPlayerOne = 0;
+	int countPlayerTwo = 0;
+	int gamePlayerOne = 0;
+	int gamePlayerTwo = 0;
+	int setPlayerOne = 0;
+	int setPlayerTwo = 0;
+	string game;
+	string set;
+	bool tiebreak = false;
+
+		List<string> scoreList = new()
+		{
+			"Love",
+			"Fifteen",
+			"Thirty",
+			"Forty",
+			"Deuce",
+			"Advantage",
+			"Game"
+		};
+
+	public string Score(int player)
+	{
+
+		switch (player)
+		{
+			case 1:
+				countPlayerOne++;
+				break;
+			case 2:
+				countPlayerTwo++;
+				break;
+		}
+
+		if (tiebreak)
+		{
+			if (countPlayerOne >= 7 && countPlayerTwo <= countPlayerOne - 2)
+			{
+				score = $"Player One {scoreList[6]}";
+				ResetGame();
+				setPlayerOne++;
+				tiebreak = false;
+				Reset();
+			}
+			else if (countPlayerTwo >= 7 && countPlayerOne <= countPlayerTwo - 2)
+			{
+				score = $"Player Two {scoreList[6]}";
+				ResetGame();
+				setPlayerTwo++;
+				tiebreak = false;
+				Reset();
+			}
+			else
+			{
+				score = $"Player One {countPlayerOne} || Player Two {countPlayerTwo}";
+			}
+		}
+
+		else if (countPlayerTwo >= 4 && countPlayerOne <= countPlayerTwo - 2)
+		{
+			score = $"Player Two {scoreList[6]}";
+			Reset();
+			gamePlayerTwo++;
+		}
+		else if (countPlayerOne >= 4 && countPlayerTwo <= countPlayerOne - 2)
+		{
+			score = $"Player One {scoreList[6]}";
+			Reset();
+			gamePlayerOne++;
+		}
+		else if (countPlayerOne >= 3 && countPlayerTwo == countPlayerOne)
+		{
+			countPlayerOne = 4;
+			countPlayerTwo = 4;
+			score = scoreList[4];
+		}
+		else if (countPlayerOne >= 1 && countPlayerOne == countPlayerTwo && countPlayerOne <= 2)
+		{
+			score = $"{scoreList[countPlayerOne]} all";
+		}
+		else if (countPlayerOne >= 4 && countPlayerTwo == countPlayerOne - 1)
+		{
+			score = $"Player One {scoreList[countPlayerOne]}";
+		}
+		else if (countPlayerTwo >= 4 && countPlayerOne == countPlayerTwo - 1)
+		{
+			score = $"Player Two {scoreList[countPlayerTwo]}";
+		}
+		else
+		{
+			score = $"Player One {scoreList[countPlayerOne]} || Player Two {scoreList[countPlayerTwo]}";
+		}
+
+		PrintGame();
+		PrintSet();
+		return score;
+	}
+
+
+	public string PrintGame()
+	{
+		if (gamePlayerOne == 6 && gamePlayerTwo == 6)
+		{
+			game = "Tiebreak";
+			tiebreak = true;
+		}
+		else if (gamePlayerOne == 7 && gamePlayerTwo == 6 || gamePlayerOne == 6 && gamePlayerTwo == gamePlayerOne-2)
+		{
+			game = "Set Player One";
+			
+		}
+		else if (gamePlayerTwo == 7 && gamePlayerOne == 6 || gamePlayerTwo == 6 && gamePlayerOne == gamePlayerTwo - 2)
+		{
+			game = "Set Player Two";
+		}
+		else
+		{
+			game = $"Game Player One: {gamePlayerOne} || Game Player Two: {gamePlayerTwo}";
+		}
+		return game;
+	}
+
+	public string PrintSet()
+	{
+		if(gamePlayerOne >= 6 && gamePlayerTwo <= gamePlayerOne - 2)
+		{
+			ResetGame();
+			setPlayerOne++;
+			if (setPlayerOne == 3)
+			{
+				set = "Winner Player One";
+				ResetAll();
+			}
+			else if (setPlayerTwo == 3)
+			{
+				set = "Winner Player Two";
+			}
+		}
+		else if (gamePlayerTwo >= 6 && gamePlayerOne <= gamePlayerTwo - 2)
+		{
+			ResetGame();
+			setPlayerTwo++;
+		}
+		else
+		{
+			set = $"Set Player One: {setPlayerOne} || Set Player Two: {setPlayerTwo}";
+		}
+		return set;
+	}
+
+	private void ResetAll()
+	{
+		Reset();
+		ResetGame();
+		ResetSet();
+		PrintReset();
+	}
+
+	private void PrintReset()
+	{
+		game = $"Game Player One: {gamePlayerOne} || Game Player Two: {gamePlayerTwo}";
+		set = $"Set Player One: {setPlayerOne} || Set Player Two: {setPlayerTwo}";
+		score = $"Player One {scoreList[countPlayerOne]} || Player Two {scoreList[countPlayerTwo]}";
+	}
+
+	private void Reset()
+	{
+		countPlayerOne = 0;
+		countPlayerTwo = 0;
+	}
+
+	private void ResetGame()
+	{
+		gamePlayerOne = 0;
+		gamePlayerTwo = 0;
+	}
+
+	private void ResetSet()
+	{
+		setPlayerOne = 0;
+		setPlayerTwo = 0;
+	}
+
+	protected override void OnInitialized()
+	{
+		PrintReset();
+	}
+
+}
